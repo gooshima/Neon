@@ -12,6 +12,11 @@ $(document).ready(function () {
         $('#toSyncBtn').click(function () {
             window.location.href = "list.html";
         });
+
+        //デバッグ用ボタン
+        $('#debugBtn').click(function () {
+            window.location.href = "debug.html";
+        });
     }
 
     //TODO デモページ
@@ -23,6 +28,9 @@ $(document).ready(function () {
                 アプリから同期願いを出す。
                 管理者がパターンファイルと、現在の再生時間を送信する。
             */
+
+            //
+
         });
     }
 
