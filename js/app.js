@@ -17,6 +17,12 @@ $(document).ready(function () {
         $('#debugBtn').click(function () {
             window.location.href = "debug.html";
         });
+
+        //GPIO制御ボタン
+        $('#gpioBtn').click(function () {
+            window.location.href = "gpio.html";
+        });
+
     }
 
     //TODO デモページ

@@ -46,7 +46,7 @@
                 $.ajax({
                     url : url,
                     type: "GET",
-                    data : 'test',
+                    data : 'test2',
                     success: function(data, textStatus, jqXHR)
                     {
                         console.log("success");
@@ -67,9 +67,9 @@
 
     <p><button class="btn btn-default" id="postTest">POST TEST 2</button></p>
 
-    <p><button class="btn btn-default"><a href="lua/debug.lua">デバッグコード (debug.lua)</a></button></p>
-    <p><button class="btn btn-default"><a href="lua/hello.lua">Hello  World 書き込み</a></button></p>
-    <p><button class="btn btn-default"><a href="../../../Hello.txt">書き込んだファイルの確認</a></button></p>
+    <p><button class="btn btn-default"><a href="debug.lua">デバッグコード (debug.lua)</a></button></p>
+    <p><button class="btn btn-default"><a href="hello.lua">Hello  World 書き込み</a></button></p>
+    <p><button class="btn btn-default"><a href="../../../neon.dat">書き込んだファイルの確認</a></button></p>
 </div>
 
 <section>
