@@ -16,39 +16,178 @@
 
     <script>
         $(document).ready(function () {
+            var neonTimer;
+            var isPlay = false;
+            $('#syncStartBtn').click(function () {
+                if (isPlay) {
+                    //音楽停止
+                    document.getElementById('demoBgm').pause();
+                    $('#syncTxt').text('同期 開始');
+                    isPlay = false;
+                    clearInterval(neonTimer);
+                } else {
+                    //音源を開始
+                    document.getElementById('demoBgm').play();
+                    $('#syncTxt').text('同期 Stop');
+                    isPlay = true;
+
+                    //タイマー制御
+                    var i = 0;
+                    neonTimer = setInterval(function () {
+                        i++;
+                        startSync();
+                        setShareMemory(0,0,0);
+                        switch (i) {
+                            case 6://0.6秒目
+                                setShareMemory(1, 1, 1);
+                            case 24:
+                                setShareMemory(3, 3, 3);
+                                break;
+                            case 30://
+                                setShareMemory(10, 10, 10);
+                                break;
+                        }
+                    }, 100);
+                }
+            });
         });
     </script>
     <script language="javascript" type="text/javascript">
-        var urlBase = 'http://neon';
-        //var urlBase = 'http://localhost';
+
+        var isDebug = false;
+        var urlBase;
+
+        if (isDebug) {
+            urlBase = 'http://localhost';
+        } else {
+            urlBase = 'http://neon';
+        }
+
+        /**
+         * 音楽開始を共有メモリに書き込む
+         */
+        function startSync(argFlg){
+            console.log("sync start");
+            if(argFlg){
+                //TODO 音楽開始フラグ = 1
+                urlBase + "/command.cgi?op=131&ADDR=0&LEN=1&DATA=1";
+            }else{
+                //TODO 音楽停止フラグ = 0
+                urlBase + "/command.cgi?op=131&ADDR=0&LEN=1&DATA=0";
+            }
+        }
+
+        /**
+         * TODO 共有メモリに書き込む
+         * データ : GPIO ビットを10進数にしたもの
+         */
+        function setShareMemory(argData1, argData2, argData3) {
+
+            //TODO UI側はビットを意識せず、Lua側で吸収したい。
+            switch (argData1){
+                case 10:
+                    argData1 = 'a';
+                    break;
+                case 11:
+                    argData1 = 'b';
+                    break;
+                case 12:
+                    argData1 = 'c';
+                    break;
+                case 13:
+                    argData1 = 'd';
+                    break;
+                case 14:
+                    argData1 = 'e';
+                    break;
+                case 15:
+                    argData1 = 'f';
+                    break;
+            }
+            switch (argData2){
+                case 10:
+                    argData2 = 'a';
+                    break;
+                case 11:
+                    argData2 = 'b';
+                    break;
+                case 12:
+                    argData2 = 'c';
+                    break;
+                case 13:
+                    argData2 = 'd';
+                    break;
+                case 14:
+                    argData2 = 'e';
+                    break;
+                case 15:
+                    argData2 = 'f';
+                    break;
+            }
+            switch (argData3){
+                case 10:
+                    argData3 = 'a';
+                    break;
+                case 11:
+                    argData3 = 'b';
+                    break;
+                case 12:
+                    argData3 = 'c';
+                    break;
+                case 13:
+                    argData3 = 'd';
+                    break;
+                case 14:
+                    argData3 = 'e';
+                    break;
+                case 15:
+                    argData3 = 'f';
+                    break;
+            }
+
+            //TODO 三台用に送信
+            var fa01 = 1;
+            var fa02 = 2;
+            var fa03 = 3;
+            url1 = urlBase + "/command.cgi?op=131&ADDR=" + fa01 + "&LEN=1&DATA=" + argData1;
+            url2 = urlBase + "/command.cgi?op=131&ADDR=" + fa02 + "&LEN=1&DATA=" + argData2;
+            url3 = urlBase + "/command.cgi?op=131&ADDR=" + fa03 + "&LEN=1&DATA=" + argData3;
+            flashair_get(url1);
+            flashair_get(url2);
+            flashair_get(url3);
+        }
 
         /**
          * FlashAirに対してHTTP通信 GETをする
          * @param param
          */
-        function flashair_get( param ){
+        function flashair_get(param) {
             var request = new XMLHttpRequest();
             request.open("GET", param, false);
             request.send(null);
             //通信結果
-            document.getElementById('RESULT').value += request.responseText;
+//            document.getElementById('RESULT').value += request.responseText;
         }
 
         /**
          * GPIOポートをすべてLow
          */
-        function gpio_off(){
+        function gpio_off() {
             var url = urlBase + "/command.cgi?op=190&CTRL=0x1f&DATA=0x00";
             flashair_get(url);
+        }
+
+        //TODO
+        function startSync(){
+            //something
         }
 
         /**
          * 任意のポートをHighにする
          * @param port
          */
-        function gpio_on(port){
-
-            switch( port ){
+        function gpio_on(port, num) {
+            switch (port) {
                 case 1:
                     var url = urlBase + "/command.cgi?op=190&CTRL=0x1f&DATA=0x10";
                     flashair_get(url);
@@ -72,12 +211,13 @@
             //リロードしてLowに戻す
             window.location.reload();
         }
+
     </script>
 </head>
 
 <body onLoad="gpio_off()">
 
-<p class="title split" style="text-align: center; margin-top: 150px" id="mainTitle">
+<p class="title split" style="text-align: center; margin-top: 50px" id="mainTitle">
     <span style="color: red;">N</span>
     <span style="color: #ffb40d;">E</span>
     <span style="color: #ffa27e;">O</span>
@@ -94,19 +234,35 @@
                 <!-- TODO contents here -->
             </p>
 
-            <div align="center" style="margin-top: 50px;">
+            <div style="width: 100%; margin: 0 auto; text-align: center; margin-bottom: 20px;">
+                <button type="button" class="btn btn-default btn-lg" id="syncStartBtn">
+                    <span class="glyphicon glyphicon-play" aria-hidden="true"></span> <span id="syncTxt">同期 Start</span>
+                </button>
+                <section style="margin-top: 20px;">
+                    <h4><span class="glyphicon glyphicon-music"></span> 音源</h4>
+                    <audio controls id="demoBgm">
+                        <source src="sounds/bgm.ogg" type="audio/ogg">
+                        <source src="sounds/bgm.mp3" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </section>
+            </div>
+
+            <div align="center" style="margin-top: 30px;">
                 <form>
                     <input class="btn btn-success" type="button" value="Port 1" onclick="gpio_on(1)">
                     <input class="btn btn-success" type="button" value="Port 2" onclick="gpio_on(2)">
                     <input class="btn btn-success" type="button" value="Port 3" onclick="gpio_on(3)">
                     <input class="btn btn-success" type="button" value="Port 4" onclick="gpio_on(4)">
                 </form>
-                <input type="text" id="RESULT" value="結果＝">
+                <!--<input type="text" id="RESULT" value="結果＝">-->
             </div>
+
         </div>
     </section>
 
     <script src="js/bootstrap.min.js"></script>
 </div>
+<a href="index.html">戻る</a>
 </body>
 </html>

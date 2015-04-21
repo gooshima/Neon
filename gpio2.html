@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1">
+
+    <title>Hello World</title>
+
+    <link href="css/normalize.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <script src="js/jquery-2.1.3.min.js"></script>
+    <script src="js/hamburger.js"></script>
+
+    <script src="js/app.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var neonTimer;
+            var isPlay = false;
+            $('#syncStartBtn').click(function () {
+                if (isPlay) {
+                    //音楽停止
+                    window.location.href = "gpio2.html";
+                    document.getElementById('demoBgm').pause();
+                    $('#syncTxt').text('同期 開始');
+                    isPlay = false;
+                    clearInterval(neonTimer);
+                    window.location.href = "gpio2.html";
+                } else {
+                    //音源を開始
+                    document.getElementById('demoBgm').play();
+                    $('#syncTxt').text('同期 Stop');
+                    isPlay = true;
+
+                    //タイマー制御
+                    var i = 0;
+                    neonTimer = setInterval(function () {
+                        i++;
+                        console.log(i + 'sec');
+
+                        startSync();
+                        switch (i){
+                            case 1:
+                                gpio_on(2);
+                                break;
+                            case 2:
+                                gpio_on(3);
+                                break;
+                            case 3:
+                                gpio_on(4);
+                                break;
+                            case 4:
+                                gpio_on(1);
+                                break;
+                            case 5:
+                                gpio_on(2);
+                                break;
+                            case 10:
+                                gpio_on(3);
+                                break;
+                            case 15:
+                                gpio_on(4);
+                                break;
+                            case 20:
+                                gpio_on(2);
+                                break;
+                            case 21:
+                                gpio_on(3);
+                                break;
+                            case 22:
+                                gpio_on(4);
+                                break;
+                            case 23:
+                                gpio_on(2);
+                                break;
+                            case 24:
+                                gpio_on(3);
+                                break;
+                            case 25:
+                                gpio_on(4);
+                                break;
+                            case 26:
+                                gpio_on(3);
+                                break;
+                            case 30:
+                                gpio_on(2);
+                                break;
+                            case 35:
+                                gpio_on(1);
+                                break;
+                            case 40:
+                                gpio_on(3);
+                                break;
+                            case 45:
+                                gpio_on(4);
+                                break;
+                        }
+                    }, 1000);
+                }
+            });
+        });
+    </script>
+    <script language="javascript" type="text/javascript">
+
+        var isDebug = false;
+        var urlBase;
+
+        if (isDebug) {
+            urlBase = 'http://localhost';
+        } else {
+            urlBase = 'http://neon';
+        }
+
+        /**
+         * 音楽開始を共有メモリに書き込む
+         */
+        function startSync(argFlg){
+            console.log("sync start");
+            if(argFlg){
+                //TODO 音楽開始フラグ = 1
+                urlBase + "/command.cgi?op=131&ADDR=0&LEN=1&DATA=1";
+            }else{
+                //TODO 音楽停止フラグ = 0
+                urlBase + "/command.cgi?op=131&ADDR=0&LEN=1&DATA=0";
+            }
+        }
+
+        /**
+         * 共有メモリに書き込む
+         * argFaNum : Flash Air番号 1,2,3
+         * データ : GPIO Port番号
+         */
+        function setShareMemory(argFaNum, argData){
+            urlBase + "/command.cgi?op=131&ADDR=" + argFaNum + "&LEN=1&DATA=" + argData;
+            console.log(argFaNum + " memory wrote....Data was " + argData);
+        }
+
+
+
+
+        /**
+         * FlashAirに対してHTTP通信 GETをする
+         * @param param
+         */
+        function flashair_get(param) {
+            var request = new XMLHttpRequest();
+            request.open("GET", param, false);
+            request.send(null);
+            //通信結果
+            document.getElementById('RESULT').value += request.responseText;
+        }
+
+        /**
+         * GPIOポートをすべてLow
+         */
+        function gpio_off() {
+            var url = urlBase + "/command.cgi?op=190&CTRL=0x1f&DATA=0x00";
+            flashair_get(url);
+        }
+
+        function startSync(){
+
+        }
+
+        /**
+         * 任意のポートをHighにする
+         * @param port
+         */
+        function gpio_on(port, num) {
+            switch (port) {
+                case 1:
+                    var url = urlBase + "/command.cgi?op=190&CTRL=0x1f&DATA=0x10";
+                    flashair_get(url);
+                    break;
+                case 2:
+                    var url = urlBase + "/command.cgi?op=190&CTRL=0x1f&DATA=0x08";
+                    flashair_get(url);
+                    break;
+                case 3:
+                    var url = urlBase + "/command.cgi?op=190&CTRL=0x1f&DATA=0x04";
+                    flashair_get(url);
+                    break;
+                case 4:
+                    var url = urlBase + "/command.cgi?op=190&CTRL=0x1f&DATA=0x02";
+                    flashair_get(url);
+                    break;
+                default :
+                    break;
+            }
+
+            //リロードしてLowに戻す
+            window.location.reload();
+        }
+
+    </script>
+    <style>
+        section{
+            border-bottom: 1px dotted;
+            padding-bottom: 10px;
+        }
+        h4{
+            color: orangered;
+        }
+    </style>
+</head>
+
+<body onLoad="gpio_off()">
+<div class="hb-navigation">
+    <div class="button"></div>
+</div>
+
+<div class="navigation-contents section menu">
+    <p><a href="index.html">HOME</a></p>
+
+    <p><a href="demo.html">デモ画面</a></p>
+
+    <p><a href="index.html"> HELP</a></p>
+</div>
+
+<p class="title split" style="text-align: center; margin-top: 50px" id="mainTitle">
+    <span style="color: red;">N</span>
+    <span style="color: #ffb40d;">E</span>
+    <span style="color: #ffa27e;">O</span>
+    <span style="color: #ff23a4;">N</span>
+</p>
+
+<div style="display: block;" id="mainBox">
+
+
+    <div class="content">
+
+    <section>
+        <div class="container">
+            <p class="content">
+                <!-- TODO contents here -->
+            </p>
+
+            <div style="width: 100%; margin: 0 auto; text-align: center; margin-bottom: 20px; margin-top: 20px;">
+                <button type="button" class="btn btn-default btn-lg" id="syncStartBtn">
+                    <span class="glyphicon glyphicon-play" aria-hidden="true"></span> <span id="syncTxt">同期 Start</span>
+                </button></div>
+            <section>
+                <h4><span class="glyphicon glyphicon-comment"></span> 内容</h4>
+                <p>Flash Airハッカソンでデモをする際の音源と楽譜です。</p>
+            </section>
+
+            <section>
+                <h4><span class="glyphicon glyphicon-music"></span> 音源</h4>
+                <audio controls id="demoBgm">
+                    <source src="sounds/bgm.ogg" type="audio/ogg">
+                    <source src="sounds/bgm.mp3" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </section>
+
+            <section>
+                <h4><span class="glyphicon glyphicon-equalizer"></span> パターンファイル</h4>
+                <p style="margin-bottom: 10px;"><a href="#"> comming soon...</a></p>
+            </section>
+            </div>
+
+        <div align="center" style="margin-top: 30px;">
+            <form>
+                <input class="btn btn-success" type="button" value="Port 1" onclick="gpio_on(1)">
+                <input class="btn btn-success" type="button" value="Port 2" onclick="gpio_on(2)">
+                <input class="btn btn-success" type="button" value="Port 3" onclick="gpio_on(3)">
+                <input class="btn btn-success" type="button" value="Port 4" onclick="gpio_on(4)">
+            </form>
+            <!--<input type="text" id="RESULT" value="結果＝">-->
+        </div>
+
+            <!--<div style="width: 100%; margin: 0 auto; text-align: center; margin-bottom: 20px;">-->
+                <!--<button type="button" class="btn btn-default btn-lg" id="syncStartBtn">-->
+                    <!--<span class="glyphicon glyphicon-play" aria-hidden="true"></span> <span id="syncTxt">同期 Start</span>-->
+                <!--</button>-->
+                <!--<section style="margin-top: 20px;">-->
+                    <!--<h4><span class="glyphicon glyphicon-music"></span> 音源</h4>-->
+                    <!--<audio controls id="demoBgm">-->
+                        <!--<source src="sounds/bgm.ogg" type="audio/ogg">-->
+                        <!--<source src="sounds/bgm.mp3" type="audio/mpeg">-->
+                        <!--Your browser does not support the audio element.-->
+                    <!--</audio>-->
+                <!--</section>-->
+            <!--</div>-->
+
+            <!--<div align="center" style="margin-top: 30px;">-->
+                <!--<form>-->
+                    <!--<input class="btn btn-success" type="button" value="Port 1" onclick="gpio_on(1)">-->
+                    <!--<input class="btn btn-success" type="button" value="Port 2" onclick="gpio_on(2)">-->
+                    <!--<input class="btn btn-success" type="button" value="Port 3" onclick="gpio_on(3)">-->
+                    <!--<input class="btn btn-success" type="button" value="Port 4" onclick="gpio_on(4)">-->
+                <!--</form>-->
+                <!--&lt;!&ndash;<input type="text" id="RESULT" value="結果＝">&ndash;&gt;-->
+            <!--</div>-->
+
+        </div>
+    </section>
+
+    <script src="js/bootstrap.min.js"></script>
+</div>
+<a href="index.html">戻る</a>
+</body>
+</html>

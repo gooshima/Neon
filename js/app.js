@@ -23,12 +23,17 @@ $(document).ready(function () {
             window.location.href = "gpio.html";
         });
 
+        //GPIO制御ボタン2
+        $('#gpioBtn2').click(function () {
+            window.location.href = "gpio2.html";
+        });
+
     }
 
     //TODO デモページ
     if (pageId == 'demo') {
         $('#syncStartBtn').click(function(){
-            alert("同期を始めます!!　設定情報を Flash Air に送信する。などなど。");
+            window.location.href = "gpio2.html";
             /*
                 途中から参加する場合
                 アプリから同期願いを出す。
